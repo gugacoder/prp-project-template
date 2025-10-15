@@ -1,18 +1,29 @@
-# git-commit
+# Commits temáticos (--all | --one | --help)
 
 ## Objetivo
 
-Registrar mudanças com mensagens de commit concisas, em pt-BR, padronizadas e inequívocas, seguindo o modelo `conventional commits`.
+Registrar mudanças com mensagens de commit concisas, em pt-BR, padronizadas e inequívocas, seguindo o modelo `conventional commits`, **agrupando mudanças relacionadas em commits temáticos separados**.
 
 ## Instruções
 
 Leia $ARGUMENTS como opções.
 
-**Modo de commit**: Se a opção `-all` for fornecida, habilite o modo full-commit; caso contrário, habilite o modo stage-only.
+**Opções de comando**:
+- `-a`, `--all`: Adiciona todos os arquivos ao stage antes do commit (`git add -A .`)
+- `-1`, `-o`, `--one`: Faz um único commit com todas as mudanças (ignora agrupamento temático)
+- Sem opções: Trabalha apenas com arquivos já no stage
 
-**Validação de stage**: Se o modo full-commit estiver habilitado, adicione todos os arquivos da pasta atual e suas subpastas ao stage, equivalente a `git add -A .`. Se o modo stage-only estiver habilitado, faça commit apenas do que já está no stage.
+**Modo de execução**:
+1. Se `-1`, `-o` ou `--one` fornecido → **Commit único** com todas as mudanças
+2. Caso contrário → **Commits temáticos** agrupados e ordenados
 
-**Mensagem de commit**: Declare claramente **o que foi alterado e por quê**, de forma legível tanto para humanos quanto para máquinas, considerando apenas mudanças nos arquivos já adicionados ao stage.
+**Agrupamento temático** (quando não usar `--one`):
+1. Analise TODAS as mudanças e agrupe por tema/contexto relacionado
+2. Ordene os grupos por dependência lógica (ex: refactor antes de feat que o usa)
+3. Para cada grupo, execute um commit separado na ordem definida
+4. Use `git add` seletivo para adicionar apenas arquivos do grupo atual antes de cada commit
+
+**Mensagem de commit**: Declare claramente **o que foi alterado e por quê** para cada grupo temático, de forma legível tanto para humanos quanto para máquinas.
 
 **Ferramentas extras**: Use o TodoWrite para orientar a execução.
 
@@ -24,16 +35,24 @@ Leia $ARGUMENTS como opções.
 - [opcional] bullets com decisões ou exemplos
 ```
 
+## Fluxo de execução
+
+1. **Identificar grupos**: Separe mudanças por tema (ex: docs, feat-auth, fix-api)
+2. **Definir ordem**: Commits base → dependentes → independentes → docs/chore
+3. **Para cada grupo**:
+   - `git add [arquivos_do_grupo]`
+   - `git commit -m "[mensagem_tematica]"`
+
 ## Tipos comuns
 
 * `feat`: Adiciona uma nova funcionalidade
 * `fix`: Corrige um bug
 * `docs`: Alterações na documentação
-* `style`: Mudanças de estilo de código (espaços, ponto e vírgula, etc.) sem impacto funcional
+* `style`: Mudanças de estilo de código sem impacto funcional
 * `refactor`: Refatoração de código sem alterar funcionalidade
 * `perf`: Melhorias de performance
 * `test`: Adição ou atualização de testes
-* `build`: Mudanças que afetam o sistema de build ou dependências
+* `build`: Mudanças no sistema de build ou dependências
 * `ci`: Alterações em arquivos e scripts de CI
 * `chore`: Outras mudanças que não modificam src ou testes
 * `revert`: Reverte um commit anterior
@@ -44,27 +63,41 @@ Leia $ARGUMENTS como opções.
 * `domain`, `feature`, `task`
 * `docs` (quando transversal)
 
-## Exemplos
+## Exemplos de agrupamento
 
+Mudanças detectadas:
+- README.md modificado
+- auth.js refatorado
+- login.css estilizado
+- api.test.js adicionado
+- package.json atualizado
+
+Commits resultantes (em ordem):
 ```bash
-docs(system): converter CLAUDE.md para README.md
+# 1º - Dependências
+build(deps): atualizar dependências do projeto
 
-- Removidas referências a IA
-- Padronizado com a estrutura DFT
-```
+# 2º - Refatoração base
+refactor(auth): reorganizar módulo de autenticação
 
-```bash
-feat(feature): adicionar comentários ao blog
-fix(task): corrigir bug na exportação JSON
+# 3º - Funcionalidade
+style(auth): ajustar estilos do formulário de login
+
+# 4º - Testes
+test(auth): adicionar testes para novo fluxo
+
+# 5º - Documentação
+docs(readme): atualizar instruções de instalação
 ```
 
 ## Restrições
 
+* Não misture temas diferentes no mesmo commit
 * Não descreva o passo a passo — declare **o resultado final**
 * Evite termos vagos como "ajustes" ou "melhorias"
-* Não inclua explicações fora da mensagem de commit
-* Escreva texto em pt-BR.
+* Mantenha atomicidade: cada commit deve ser independente e testável
+* Escreva texto em pt-BR
 
 ## Dica
 
-Se a mudança não for testável, o commit deve ser ao menos **rastreável e atômico**.
+Commits temáticos facilitam: reverter mudanças específicas, entender o histórico, e fazer cherry-pick quando necessário.
